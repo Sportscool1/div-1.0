@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #info {
+            white-space: pre-wrap;
+            background-color: #f4f4f4;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 600px;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Device Information</h1>
+    <button onclick="getDeviceInfo()">Get Device Info</button>
+    <div id="info"></div>
+
+    <script>
+        function getDeviceInfo() {
+            const deviceInfo = {
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                language: navigator.language,
+                online: navigator.onLine,
+                screenWidth: window.screen.width,
+                screenHeight: window.screen.height,
+                colorDepth: window.screen.colorDepth,
+                deviceMemory: navigator.deviceMemory || 'Unknown'
+            };
+
+            const infoDiv = document.getElementById('info');
+            infoDiv.textContent = JSON.stringify(deviceInfo, null, 2);
+        }
+    </script>
+</body>
+</html>
