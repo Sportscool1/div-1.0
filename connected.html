@@ -3,22 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Network Devices</title>
+    <title>Network Scanner</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
         }
-        #device-table {
-            width: 100%;
-            border-collapse: collapse;
+        #host-list {
+            list-style-type: none;
+            padding: 0;
         }
-        #device-table th, #device-table td {
-            border: 1px solid #ddd;
+        #host-list li {
             padding: 8px;
-        }
-        #device-table th {
-            background-color: #f4f4f4;
+            border: 1px solid #ddd;
+            margin-bottom: 4px;
         }
         button {
             padding: 10px;
@@ -28,36 +26,27 @@
     </style>
 </head>
 <body>
-    <h1>Connected Devices</h1>
-    <button onclick="fetchDevices()">Fetch Devices</button>
-    <table id="device-table">
-        <thead>
-            <tr>
-                <th>IP Address</th>
-                <th>MAC Address</th>
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Device rows will be inserted here -->
-        </tbody>
-    </table>
+    <h1>Network Scanner</h1>
+    <input type="text" id="subnet" placeholder="Enter subnet (e.g., 192.168.1.0/24)" />
+    <button onclick="fetchDevices()">Scan Network</button>
+    <ul id="host-list">
+        <!-- Active hosts will be listed here -->
+    </ul>
 
     <script>
         async function fetchDevices() {
+            const subnet = document.getElementById('subnet').value;
             try {
-                const response = await fetch('http://localhost:5000/scan'); // Adjust the URL if needed
+                const response = await fetch(`/api/scan?subnet=${encodeURIComponent(subnet)}`);
                 const devices = await response.json();
                 
-                const tableBody = document.querySelector('#device-table tbody');
-                tableBody.innerHTML = ''; // Clear existing rows
+                const list = document.getElementById('host-list');
+                list.innerHTML = ''; // Clear existing list
 
                 devices.forEach(device => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${device.ip}</td>
-                        <td>${device.mac}</td>
-                    `;
-                    tableBody.appendChild(row);
+                    const listItem = document.createElement('li');
+                    listItem.textContent = device;
+                    list.appendChild(listItem);
                 });
             } catch (error) {
                 console.error('Error fetching devices:', error);
