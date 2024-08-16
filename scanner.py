@@ -1,21 +1,37 @@
-from scapy.all import ARP, Ether, srp
-from flask import Flask, jsonify
+import socket
+import ipaddress
+from concurrent.futures import ThreadPoolExecutor
 
-app = Flask(__name__)
+def is_host_up(ip):
+    try:
+        # Try connecting to port 80 (HTTP) to check if the host is up
+        with socket.create_connection((ip, 80), timeout=1):
+            return True
+    except (socket.timeout, ConnectionRefusedError):
+        return False
+    except socket.error:
+        return False
 
-@app.route('/scan')
-def scan():
-    ip_range = "192.168.1.0/24"  # Adjust this to your network's IP range
-    arp = ARP(pdst=ip_range)
-    ether = Ether(dst="ff:ff:ff:ff:ff:ff")
-    packet = ether/arp
-    result = srp(packet, timeout=3, verbose=0)[0]
+def scan_network(network):
+    devices_up = []
+    # Create a ThreadPoolExecutor to run the scan concurrently
+    with ThreadPoolExecutor(max_workers=100) as executor:
+        futures = []
+        for ip in ipaddress.IPv4Network(network):
+            futures.append(executor.submit(is_host_up, str(ip)))
+        
+        for ip, future in zip(ipaddress.IPv4Network(network), futures):
+            if future.result():
+                devices_up.append(str(ip))
+    
+    return devices_up
 
-    devices = []
-    for sent, received in result:
-        devices.append({'ip': received.psrc, 'mac': received.hwsrc})
-
-    return jsonify(devices)
+def print_devices(devices):
+    print("Online devices found:")
+    for device in devices:
+        print(device)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    network = "192.168.1.0/24"  # Adjust this to your network's IP range
+    devices = scan_network(network)
+    print_devices(devices)
