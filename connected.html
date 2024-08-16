@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Devices</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #device-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #device-table th, #device-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        #device-table th {
+            background-color: #f4f4f4;
+        }
+        button {
+            padding: 10px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Connected Devices</h1>
+    <button onclick="fetchDevices()">Fetch Devices</button>
+    <table id="device-table">
+        <thead>
+            <tr>
+                <th>IP Address</th>
+                <th>MAC Address</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Device rows will be inserted here -->
+        </tbody>
+    </table>
+
+    <script>
+        async function fetchDevices() {
+            try {
+                const response = await fetch('http://localhost:5000/scan'); // Adjust the URL if needed
+                const devices = await response.json();
+                
+                const tableBody = document.querySelector('#device-table tbody');
+                tableBody.innerHTML = ''; // Clear existing rows
+
+                devices.forEach(device => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${device.ip}</td>
+                        <td>${device.mac}</td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } catch (error) {
+                console.error('Error fetching devices:', error);
+            }
+        }
+    </script>
+</body>
+</html>
